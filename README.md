@@ -113,6 +113,7 @@ from your `next` branch to a `preprod` preview channel).
 ### `targets` _{string}_
 
 Comma-separated list of targets to deploy to. Corresponds to the `--only` CLI argument.
+Do not include the `hosting:` prefix, only the site id.
 
 ### `entryPoint` _{string}_
 

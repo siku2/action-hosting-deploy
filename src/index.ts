@@ -99,7 +99,7 @@ async function run() {
 
     if (isProductionDeploy) {
       startGroup("Deploying to production site");
-      const deployment = await deployProductionSite(auth, projectId);
+      const deployment = await deployProductionSite(auth, projectId, targets);
       if (deployment.status === "error") {
         throw Error((deployment as ErrorResult).error);
       }

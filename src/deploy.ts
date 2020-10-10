@@ -121,7 +121,7 @@ export async function deploy(deployConfig: DeployConfig) {
     "npx firebase-tools",
     [
       "hosting:channel:deploy",
-      ...(targets ? ["--only", targets.join(",")] : []),
+      ...(targets.length > 0 ? ["--only", targets.join(",")] : []),
       channelId,
       ...(expires ? ["--expires", expires] : []),
     ],
@@ -136,10 +136,21 @@ export async function deploy(deployConfig: DeployConfig) {
   return deploymentResult;
 }
 
-export async function deployProductionSite(auth: DeployAuth, projectId) {
+export async function deployProductionSite(
+  auth: DeployAuth,
+  projectId: string,
+  targets: string[]
+) {
+  let targetArg: string;
+  if (targets.length > 0) {
+    targetArg = targets.map((target) => `hosting:${target}`).join(",");
+  } else {
+    targetArg = "hosting";
+  }
+
   const deploymentText = await execWithCredentials(
     "npx firebase-tools",
-    ["deploy", "--only", "hosting"],
+    ["deploy", "--only", targetArg],
     projectId,
     auth
   );
