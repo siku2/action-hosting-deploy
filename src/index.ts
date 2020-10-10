@@ -25,16 +25,20 @@ import { context, GitHub } from "@actions/github";
 import { existsSync } from "fs";
 import { createCheck } from "./createCheck";
 import { createGacFile } from "./createGACFile";
-import { deploy, deployProductionSite, ErrorResult } from "./deploy";
+import {
+  deploy,
+  deployProductionSite,
+  DeployAuth,
+  ErrorResult,
+} from "./deploy";
 import { getChannelId } from "./getChannelId";
 import { postOrUpdateComment } from "./postOrUpdateComment";
 
 // Inputs defined in action.yml
 const expires = getInput("expires");
 const projectId = getInput("projectId");
-const googleApplicationCredentials = getInput("firebaseServiceAccount", {
-  required: true,
-});
+const googleApplicationCredentials = getInput("firebaseServiceAccount");
+const firebaseToken = getInput("firebaseToken");
 const configuredChannelId = getInput("channelId");
 const targets = getInput("targets")
   .split(",")
@@ -74,15 +78,28 @@ async function run() {
     endGroup();
 
     startGroup("Setting up CLI credentials");
-    const gacFilename = await createGacFile(googleApplicationCredentials);
-    console.log(
-      "Created a temporary file with Application Default Credentials."
-    );
+    const auth: DeployAuth = {};
+    if (googleApplicationCredentials && firebaseToken) {
+      throw Error(
+        "can only specify either 'firebaseServiceAccount' or 'firebaseToken', not both!"
+      );
+    } else if (googleApplicationCredentials) {
+      auth.gacFilename = await createGacFile(googleApplicationCredentials);
+      console.log(
+        "Created a temporary file with Application Default Credentials."
+      );
+    } else if (firebaseToken) {
+      auth.firebaseToken = firebaseToken;
+    } else {
+      throw Error(
+        "must specify either 'firebaseServiceAccount' or 'firebaseToken'"
+      );
+    }
     endGroup();
 
     if (isProductionDeploy) {
       startGroup("Deploying to production site");
-      const deployment = await deployProductionSite(gacFilename, projectId);
+      const deployment = await deployProductionSite(auth, projectId);
       if (deployment.status === "error") {
         throw Error((deployment as ErrorResult).error);
       }
@@ -103,7 +120,8 @@ async function run() {
     const channelId = getChannelId(configuredChannelId, context);
 
     startGroup(`Deploying to Firebase preview channel ${channelId}`);
-    const deployment = await deploy(gacFilename, {
+    const deployment = await deploy({
+      auth,
       projectId,
       expires,
       channelId,

@@ -27,7 +27,10 @@ inputs:
     required: false
   firebaseServiceAccount:
     description: "Firebase service account JSON"
-    required: true
+    required: false
+  firebaseToken:
+    description: "Firebase token"
+    required: false
   expires:
     description: "How long should a preview live? See the preview channels docs for options"
     default: "7d"

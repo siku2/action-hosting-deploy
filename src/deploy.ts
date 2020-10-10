@@ -40,7 +40,24 @@ export type ProductionSuccessResult = {
   };
 };
 
+export type DeployAuth = {
+  gacFilename?: string;
+  firebaseToken?: string;
+};
+
+function authToEnv(auth: DeployAuth): { [key: string]: string } {
+  const env = {};
+  if (auth.gacFilename) {
+    env["GOOGLE_APPLICATION_CREDENTIALS"] = auth.gacFilename;
+  } else if (auth.firebaseToken) {
+    env["FIREBASE_TOKEN"] = auth.firebaseToken;
+  }
+
+  return env;
+}
+
 export type DeployConfig = {
+  auth: DeployAuth;
   projectId: string;
   expires: string;
   channelId: string;
@@ -51,7 +68,7 @@ async function execWithCredentials(
   firebase,
   args: string[],
   projectId,
-  gacFilename,
+  auth: DeployAuth,
   debug: boolean = false
 ) {
   let deployOutputBuf: Buffer[] = [];
@@ -74,7 +91,7 @@ async function execWithCredentials(
         env: {
           ...process.env,
           FIREBASE_DEPLOY_AGENT: "action-hosting-deploy",
-          GOOGLE_APPLICATION_CREDENTIALS: gacFilename, // the CLI will automatically authenticate with this env variable set
+          ...authToEnv(auth),
         },
       }
     );
@@ -86,7 +103,7 @@ async function execWithCredentials(
       console.log(
         "Retrying deploy with the --debug flag for better error output"
       );
-      return execWithCredentials(firebase, args, projectId, gacFilename, true);
+      return execWithCredentials(firebase, args, projectId, auth, true);
     } else {
       throw e;
     }
@@ -97,8 +114,8 @@ async function execWithCredentials(
     : ""; // output from the CLI
 }
 
-export async function deploy(gacFilename: string, deployConfig: DeployConfig) {
-  const { projectId, expires, channelId, targets } = deployConfig;
+export async function deploy(deployConfig: DeployConfig) {
+  const { auth, projectId, expires, channelId, targets } = deployConfig;
 
   const deploymentText = await execWithCredentials(
     "npx firebase-tools",
@@ -109,7 +126,7 @@ export async function deploy(gacFilename: string, deployConfig: DeployConfig) {
       ...(expires ? ["--expires", expires] : []),
     ],
     projectId,
-    gacFilename
+    auth
   );
 
   const deploymentResult = JSON.parse(deploymentText) as
@@ -119,12 +136,12 @@ export async function deploy(gacFilename: string, deployConfig: DeployConfig) {
   return deploymentResult;
 }
 
-export async function deployProductionSite(gacFilename, projectId) {
+export async function deployProductionSite(auth: DeployAuth, projectId) {
   const deploymentText = await execWithCredentials(
     "npx firebase-tools",
     ["deploy", "--only", "hosting"],
     projectId,
-    gacFilename
+    auth
   );
 
   const deploymentResult = JSON.parse(deploymentText) as
