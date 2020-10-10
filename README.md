@@ -65,7 +65,7 @@ jobs:
 
 ## Options
 
-### `firebaseServiceAccount` _{string}_ (required)
+### `firebaseServiceAccount` _{string}_ (required unless `firebaseToken` is given)
 
 This is a service account JSON key.
 
@@ -74,6 +74,10 @@ It's important to store this token as an
 to prevent unintended access to your Firebase project. Set it in the "Secrets" area
 of your repository settings and add it as `FIREBASE_SERVICE_ACCOUNT`:
 `https://github.com/USERNAME/REPOSITORY/settings/secrets`.
+
+### `firebaseToken` _{string}_ (required unless `firebaseServiceAccount` is given)
+
+Firebase token. Can be acquired using the command `firebase login:ci`.
 
 ### `repoToken` _{string}_
 
@@ -105,6 +109,10 @@ You usually want to leave this blank so that each PR gets its own preview channe
 An exception might be that you always want to deploy a certain branch to a
 long-lived preview channel (for example, you may want to deploy every commit
 from your `next` branch to a `preprod` preview channel).
+
+### `targets` _{string}_
+
+Comma-separated list of targets to deploy to. Corresponds to the `--only` CLI argument.
 
 ### `entryPoint` _{string}_
 
