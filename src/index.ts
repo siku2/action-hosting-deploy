@@ -36,6 +36,9 @@ const googleApplicationCredentials = getInput("firebaseServiceAccount", {
   required: true,
 });
 const configuredChannelId = getInput("channelId");
+const targets = getInput("targets")
+  .split(",")
+  .map((target) => target.trim());
 const isProductionDeploy = configuredChannelId === "live";
 const token = process.env.GITHUB_TOKEN || getInput("repoToken");
 const github = token ? new GitHub(token) : undefined;
@@ -104,6 +107,7 @@ async function run() {
       projectId,
       expires,
       channelId,
+      targets,
     });
     endGroup();
 

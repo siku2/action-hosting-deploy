@@ -42,6 +42,9 @@ inputs:
       "The preview channel id to deploy to. If you leave this blank, an channel
       id will be auto-generated per branch or PR"
     required: false
+  targets:
+    description: "Comma-separated list of targets to deploy to"
+    required: false
   entryPoint:
     description:
       "The location of your firebase.json file, relative to the root of your
