@@ -1,5 +1,13 @@
 # Firebase Hosting GitHub Action
 
+This fork is highly specialized for Yew.
+
+## Differences to upstream
+
+- Allows token based authentication (`firebaseToken`)
+- Deploy target selection (`targets`)
+- Running for a Pull Request outside of the `pull_request` event
+
 ## Usage
 
 ### Deploy to a new preview channel for every PR

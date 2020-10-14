@@ -31,10 +31,12 @@ inputs:
   firebaseToken:
     description: "Firebase token"
     required: false
+
   expires:
     description: "How long should a preview live? See the preview channels docs for options"
     default: "7d"
     required: false
+
   projectId:
     description:
       "The project to deploy to. If you leave this blank, make sure you check in
@@ -48,12 +50,25 @@ inputs:
   targets:
     description: "Comma-separated list of targets to deploy to"
     required: false
+
   entryPoint:
     description:
       "The location of your firebase.json file, relative to the root of your
       directory"
     default: "."
     required: false
+
+  # these are only required if you're running outside of the pull_request target.
+  prNumber:
+    description: PR number
+    required: false
+  prBranchName:
+    description: PR branch name
+    required: false
+  commitSHA:
+    description: Commit SHA of the commit that triggered this
+    required: false
+
 outputs:
   urls:
     description: The url(s) deployed to

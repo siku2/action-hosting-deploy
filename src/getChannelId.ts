@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-import { Context } from "@actions/github/lib/context";
-
-export function getChannelId(configuredChannelId: string, ghContext: Context) {
+export function getChannelId(
+  configuredChannelId?: string,
+  prContext?: { prNumber: number; branchName: String }
+) {
   let tmpChannelId: string = "";
 
   if (!!configuredChannelId) {
     tmpChannelId = configuredChannelId;
-  } else if (ghContext.payload.pull_request) {
-    const branchName = ghContext.payload.pull_request.head.ref.substr(0, 20);
-    tmpChannelId = `pr${ghContext.payload.pull_request.number}-${branchName}`;
+  } else if (prContext) {
+    const branchName = prContext.branchName.substr(0, 20);
+    tmpChannelId = `pr${prContext.prNumber}-${branchName}`;
   }
 
   // Channel IDs can only include letters, numbers, underscores, hyphens, and periods.

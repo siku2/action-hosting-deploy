@@ -22,6 +22,7 @@ import { Context } from "@actions/github/lib/context";
 export async function postOrUpdateComment(
   github: GitHub | undefined,
   context: Context,
+  issueNumber: number,
   commentMarkdown: string
 ) {
   if (!github) {
@@ -31,7 +32,7 @@ export async function postOrUpdateComment(
 
   const commentInfo = {
     ...context.repo,
-    issue_number: context.issue.number,
+    issue_number: issueNumber,
   };
 
   const comment = {

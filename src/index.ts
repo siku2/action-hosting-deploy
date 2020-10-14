@@ -35,25 +35,65 @@ import { getChannelId } from "./getChannelId";
 import { postOrUpdateComment } from "./postOrUpdateComment";
 
 // Inputs defined in action.yml
-const expires = getInput("expires");
-const projectId = getInput("projectId");
 const googleApplicationCredentials = getInput("firebaseServiceAccount");
 const firebaseToken = getInput("firebaseToken");
+
+const expires = getInput("expires");
+
+const projectId = getInput("projectId");
 const configuredChannelId = getInput("channelId");
+const isProductionDeploy = configuredChannelId === "live";
 const targets = getInput("targets")
   .split(",")
   .map((target) => target.trim());
-const isProductionDeploy = configuredChannelId === "live";
+
 const token = process.env.GITHUB_TOKEN || getInput("repoToken");
 const github = token ? new GitHub(token) : undefined;
 const entryPoint = getInput("entryPoint");
 
+export interface PRContext {
+  prNumber: number;
+  commitSHA: string;
+  branchName: string;
+}
+
+function getPRContext(): PRContext | null {
+  const payload = context.payload.pull_request;
+
+  let prNumber: number;
+  let rawPrNumber = getInput("prNumber");
+  if (rawPrNumber) {
+    prNumber = parseInt(rawPrNumber, 10);
+  } else if (payload) {
+    prNumber = payload.number;
+  } else {
+    return null;
+  }
+
+  const commitSHA: string | null = getInput("commitSHA") || payload?.head.sha;
+  if (!commitSHA) {
+    return null;
+  }
+
+  const branchName: string | null =
+    getInput("prBranchName") || payload?.head.ref;
+  if (!branchName) {
+    return null;
+  }
+
+  return {
+    prNumber,
+    commitSHA,
+    branchName,
+  };
+}
+
 async function run() {
-  const isPullRequest = !!context.payload.pull_request;
+  const prContext = getPRContext();
 
   let finish = (details: Object) => console.log(details);
-  if (token && isPullRequest) {
-    finish = await createCheck(github as GitHub, context);
+  if (token && prContext) {
+    finish = await createCheck(github, context, prContext.commitSHA);
   }
 
   try {
@@ -117,7 +157,7 @@ async function run() {
       return;
     }
 
-    const channelId = getChannelId(configuredChannelId, context);
+    const channelId = getChannelId(configuredChannelId, prContext);
 
     startGroup(`Deploying to Firebase preview channel ${channelId}`);
     const deployment = await deploy({
@@ -146,12 +186,13 @@ async function run() {
         ? `[${urls[0]}](${urls[0]})`
         : urls.map((url) => `- [${url}](${url})`).join("\n");
 
-    if (token && isPullRequest) {
-      const commitId = context.payload.pull_request?.head.sha.substring(0, 7);
+    if (token && prContext) {
+      const commitId = prContext.commitSHA.substring(0, 7);
 
       await postOrUpdateComment(
         github,
         context,
+        prContext.prNumber,
         `
 Visit the preview URL for this PR (updated for commit ${commitId}):
 

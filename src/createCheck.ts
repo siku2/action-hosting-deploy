@@ -18,11 +18,15 @@ import { GitHub } from "@actions/github";
 import { Context } from "@actions/github/lib/context";
 
 // create a check and return a function that updates (completes) it
-export async function createCheck(github: GitHub, context: Context) {
+export async function createCheck(
+  github: GitHub,
+  context: Context,
+  commitSHA: string
+) {
   const check = await github.checks.create({
     ...context.repo,
     name: "Deploy Preview",
-    head_sha: context.payload.pull_request?.head.sha,
+    head_sha: commitSHA,
     status: "in_progress",
   });
 
