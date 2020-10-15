@@ -12,62 +12,53 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: "Deploy to Firebase Hosting"
-description: "A GitHub Action to deploy to Firebase Hosting"
-author: "Jason Miller (https://github.com/developit) and Firebase"
+name: Deploy to Firebase Hosting
+description: A GitHub Action to deploy to Firebase Hosting
+author: Jason Miller (https://github.com/developit) and Firebase
 branding:
-  icon: "globe"
-  color: "blue"
+  icon: globe
+  color: blue
 runs:
-  using: "node12"
+  using: node12
   main: "bin/action.min.js"
 inputs:
   repoToken:
-    description: "The GITHUB_TOKEN secret"
-    required: false
+    description: The GITHUB_TOKEN secret
   firebaseServiceAccount:
-    description: "Firebase service account JSON"
-    required: false
+    description: Firebase service account JSON
   firebaseToken:
-    description: "Firebase token"
-    required: false
+    description: Firebase token
 
   expires:
-    description: "How long should a preview live? See the preview channels docs for options"
-    default: "7d"
-    required: false
+    description: How long should a preview live? See the preview channels docs for options
+    default: 7d
+  commentURLPath:
+    description: Custom path to add to the deploy URL in the comment.
 
   projectId:
-    description:
-      "The project to deploy to. If you leave this blank, make sure you check in
-      a .firebaserc file"
-    required: false
+    description: >
+      The project to deploy to. If you leave this blank, make sure you check in
+      a .firebaserc file
   channelId:
-    description:
-      "The preview channel id to deploy to. If you leave this blank, an channel
-      id will be auto-generated per branch or PR"
-    required: false
+    description: >
+      The preview channel id to deploy to. If you leave this blank, a channel
+      id will be auto-generated per branch or PR
   targets:
-    description: "Comma-separated list of targets to deploy to"
-    required: false
+    description: Comma-separated list of targets to deploy to
 
   entryPoint:
-    description:
-      "The location of your firebase.json file, relative to the root of your
-      directory"
+    description: >
+      The location of your firebase.json file, relative to the root of your
+      directory
     default: "."
-    required: false
 
   # these are only required if you're running outside of the pull_request target.
   prNumber:
     description: PR number
-    required: false
   prBranchName:
     description: PR branch name
-    required: false
   commitSHA:
     description: Commit SHA of the commit that triggered this
-    required: false
 
 outputs:
   urls:

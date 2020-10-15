@@ -39,7 +39,7 @@ export async function postOrUpdateComment(
     ...commentInfo,
     body:
       commentMarkdown +
-      "\n\n<sub>🔥 via [Firebase Hosting GitHub Action](https://github.com/marketplace/actions/deploy-to-firebase-hosting) 🌎</sub>",
+      "\n\n<sub>🔥 via [Firebase Hosting GitHub Action](https://github.com/siku2/action-hosting-deploy) 🌎</sub>",
   };
 
   startGroup(`Updating PR comment`);

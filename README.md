@@ -1,12 +1,13 @@
 # Firebase Hosting GitHub Action
 
-This fork is highly specialized for Yew.
+This fork is highly specialized for [Yew](https://github.com/yewstack/yew).
 
 ## Differences to upstream
 
 - Allows token based authentication (`firebaseToken`)
 - Deploy target selection (`targets`)
 - Running for a Pull Request outside of the `pull_request` event
+- Specifying a custom path for comment URLs (`commentURLPath`)
 
 ## Usage
 
@@ -73,6 +74,8 @@ jobs:
 
 ## Options
 
+See [action.yml](action.yml) for all options.
+
 ### `firebaseServiceAccount` _{string}_ (required unless `firebaseToken` is given)
 
 This is a service account JSON key.
@@ -96,38 +99,6 @@ this secret yourself - GitHub sets it automatically.
 If you omit this option, you'll need to find the preview URL in the action's
 build log.
 
-### `expires` _{string}_
-
-The length of time the preview channel should remain active.
-If left blank, the action uses the default expiry of 7 days.
-
-### `projectId` _{string}_
-
-The Firebase project that contains the Hosting site to which you
-want to deploy. If left blank, you need to check in a `.firebaserc`
-file so that the Firebase CLI knows which Firebase project to use.
-
-### `channelId` _{string}_
-
-The channel to deploy to. If you don't set it, the action creates
-a new preview channel per-PR or per-branch. If you set it to **`live`**,
-the action deploys to the live channel of your default Hosting site.
-
-You usually want to leave this blank so that each PR gets its own preview channel.
-An exception might be that you always want to deploy a certain branch to a
-long-lived preview channel (for example, you may want to deploy every commit
-from your `next` branch to a `preprod` preview channel).
-
-### `targets` _{string}_
-
-Comma-separated list of targets to deploy to. Corresponds to the `--only` CLI argument.
-Do not include the `hosting:` prefix, only the site id.
-
-### `entryPoint` _{string}_
-
-The location of your [`firebase.json`](https://firebase.google.com/docs/cli#the_firebasejson_file)
-file relative to the root of your repository. Defaults to `.` (the root of your repo).
-
 ## Outputs
 
 Values emitted by this action that can be consumed by other actions later in your workflow
@@ -143,9 +114,3 @@ The time the deployed preview urls expire
 ### `details_url`
 
 A single URL that was deployed to
-
-## Status
-
-![Status: Experimental](https://img.shields.io/badge/Status-Experimental-blue)
-
-This repository is maintained by Googlers but is not a supported Firebase product. Issues here are answered by maintainers and other community members on GitHub on a best-effort basis.

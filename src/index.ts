@@ -39,6 +39,7 @@ const googleApplicationCredentials = getInput("firebaseServiceAccount");
 const firebaseToken = getInput("firebaseToken");
 
 const expires = getInput("expires");
+const commentURLPath = getInput("commentURLPath");
 
 const projectId = getInput("projectId");
 const configuredChannelId = getInput("channelId");
@@ -130,6 +131,7 @@ async function run() {
       );
     } else if (firebaseToken) {
       auth.firebaseToken = firebaseToken;
+      console.log("authenticating with token.");
     } else {
       throw Error(
         "must specify either 'firebaseServiceAccount' or 'firebaseToken'"
@@ -181,10 +183,7 @@ async function run() {
     setOutput("expire_time", expireTime);
     setOutput("details_url", urls[0]);
 
-    const urlsListMarkdown =
-      urls.length === 1
-        ? `[${urls[0]}](${urls[0]})`
-        : urls.map((url) => `- [${url}](${url})`).join("\n");
+    const urlsListMarkdown = prepareURLMarkdownList(urls);
 
     if (token && prContext) {
       const commitId = prContext.commitSHA.substring(0, 7);
@@ -220,6 +219,16 @@ ${urlsListMarkdown}
         summary: `Error: ${e.message}`,
       },
     });
+  }
+}
+
+function prepareURLMarkdownList(urls: string[]): string {
+  const urlsMarkdown = urls.map((url) => `[${url}](${url}${commentURLPath})`);
+
+  if (urlsMarkdown.length === 1) {
+    return urlsMarkdown[0];
+  } else {
+    return urlsMarkdown.map((item) => `- ${item}`).join("\n");
   }
 }
 
